@@ -15,51 +15,6 @@ import {Application, Component} from '@loopback/core';
 // tslint:disable:no-any
 
 describe('RepositoryMixin', () => {
-  const appWithRepoMixin = RepositoryMixin(Application);
-
-  class NoteRepo {
-    model: any;
-
-    constructor() {
-      const ds: juggler.DataSource = new DataSourceConstructor({
-        name: 'db',
-        connector: 'memory',
-      });
-
-      this.model = ds.createModel(
-        'note',
-        {title: 'string', content: 'string'},
-        {},
-      );
-    }
-  }
-
-  class TestComponent {
-    repositories = [NoteRepo];
-  }
-
-  function expectNoteRepoToBeBound(myApp: Application) {
-    const boundRepositories = myApp.find('repositories.*').map(b => b.key);
-    expect(boundRepositories).to.containEql('repositories.NoteRepo');
-    const repoInstance = myApp.getSync('repositories.NoteRepo');
-    expect(repoInstance).to.be.instanceOf(NoteRepo);
-  }
-
-  function expectNoteRepoToNotBeBound(myApp: Application) {
-    const boundRepos = myApp.find('repositories.*').map(b => b.key);
-    expect(boundRepos).to.be.empty();
-  }
-
-  function expectComponentToBeBound(
-    myApp: Application,
-    component: Class<Component>,
-  ) {
-    const boundComponents = myApp.find('components.*').map(b => b.key);
-    expect(boundComponents).to.containEql(`components.${component.name}`);
-    const componentInstance = myApp.getSync(`components.${component.name}`);
-    expect(componentInstance).to.be.instanceOf(component);
-  }
-
   it('mixed class has .repository()', () => {
     const myApp = new appWithRepoMixin();
     expect(typeof myApp.repository).to.be.eql('function');
@@ -111,4 +66,49 @@ describe('RepositoryMixin', () => {
     expectComponentToBeBound(myApp, TestComponent);
     expectNoteRepoToBeBound(myApp);
   });
+
+  const appWithRepoMixin = RepositoryMixin(Application);
+
+  class NoteRepo {
+    model: any;
+
+    constructor() {
+      const ds: juggler.DataSource = new DataSourceConstructor({
+        name: 'db',
+        connector: 'memory',
+      });
+
+      this.model = ds.createModel(
+        'note',
+        {title: 'string', content: 'string'},
+        {},
+      );
+    }
+  }
+
+  class TestComponent {
+    repositories = [NoteRepo];
+  }
+
+  function expectNoteRepoToBeBound(myApp: Application) {
+    const boundRepositories = myApp.find('repositories.*').map(b => b.key);
+    expect(boundRepositories).to.containEql('repositories.NoteRepo');
+    const repoInstance = myApp.getSync('repositories.NoteRepo');
+    expect(repoInstance).to.be.instanceOf(NoteRepo);
+  }
+
+  function expectNoteRepoToNotBeBound(myApp: Application) {
+    const boundRepos = myApp.find('repositories.*').map(b => b.key);
+    expect(boundRepos).to.be.empty();
+  }
+
+  function expectComponentToBeBound(
+    myApp: Application,
+    component: Class<Component>,
+  ) {
+    const boundComponents = myApp.find('components.*').map(b => b.key);
+    expect(boundComponents).to.containEql(`components.${component.name}`);
+    const componentInstance = myApp.getSync(`components.${component.name}`);
+    expect(componentInstance).to.be.instanceOf(component);
+  }
 });
